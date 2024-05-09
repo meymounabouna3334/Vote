@@ -1,0 +1,324 @@
+ 
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+ 
+ 
+class Employee {
+public:
+    int matricule;
+    string nom;
+    string prenom;
+    string date_embauche;
+    double salaire;
+ 
+    Employee (int matricule, const string& nom, const string& prenom, const string& date_embauche, double salaire)
+        : matricule(matricule), nom(nom), prenom(prenom), date_embauche(date_embauche), salaire(salaire) {}
+ 
+    void EmployeeDetails() {
+        cout << "Entrez le matricule de l'employe : ";
+        cin >> matricule;
+        cout << "Entrez le nom de l'employe : ";
+        cin >> nom;
+        cout << "Entrez le prenom de l'employe : ";
+        cin >> prenom;
+        cout << "Entrez le date d'embauche de l'employe : ";
+        cin >> date_embauche;
+        cout << "Entrez le salaire de l'employe : ";
+        cin >> salaire;
+ 
+    }
+ 
+    void AfficherEmployeeDetails() const {
+        cout<< "Matricule: " << matricule << ", Nom: " << nom << ", Prenom: " << prenom << ", Salaire: " << salaire <<" Date d'embauche " <<date_embauche<<"\n";
+    }
+};
+ 
+class Poste {
+public:
+    string position;
+    Employee employee;
+ 
+    Poste(const string position, const Employee& employee) : position(position), employee(employee) {}
+};
+ 
+class Projet {
+public:
+    int number;
+    string designation;
+    double budget;
+    int duree;
+ 
+    vector<Poste> postes;
+ 
+    Projet(int number, const string& designation, double budget, int duree)
+        : number(number), designation(designation), budget(budget), duree(duree) {}
+ 
+    void AjouterPoste(const Poste& job) {
+        postes.push_back(job);
+    }
+ 
+    void SetProjetDetails() {
+        cout << "Entrez la nombre du projet : ";
+        cin >> number;
+        cout << "Entrez la duree du projet : ";
+        cin >> duree;
+        cout << "Entrez la designation du projet : ";
+        cin >> designation;
+        cout << "Entrez la budget du projet : ";
+        cin >> budget;
+    }
+ 
+    void DisplayProjetDetails() const {
+        cout << "Nombre: " << number << ", Designation: " << designation << ", Budget: " << budget << ", Duree: " << duree << "\n";
+    }
+};
+ 
+class GestionRH {
+private:
+    vector<Employee> employees;
+    vector<Projet> projets;
+ 
+public:
+    void AjouterEmployee(const Employee& employee) {
+        employees.push_back(employee);
+        cout << "Employee ajouté avec succès." << endl;
+    }
+ 
+    void AjouterProjet(const Projet& project) {
+        projets.push_back(project);
+        cout << "Projet ajouté avec succès." << endl;
+    }
+ 
+     void SupprimerProjet(int NombreProjet) {
+        auto itProjet = find_if(projets.begin(), projets.end(), [NombreProjet](const Projet& proj) {
+            return proj.number == NombreProjet;
+        });
+ 
+        if (itProjet != projets.end()) {
+            projets.erase(itProjet);
+            cout << "Projet supprime avec succes." << endl;
+        } else {
+            cout << "Projet introuvable." << endl;
+        }
+    }
+ 
+    void EditProjet(int NombreProjet, const string& newDesignation, double newBudget, int newDuree) {
+        auto itProjet = find_if(projets.begin(), projets.end(), [NombreProjet](const Projet& proj) {
+            return proj.number == NombreProjet;
+        });
+ 
+        if (itProjet != projets.end()) {
+            itProjet->designation = newDesignation;
+            itProjet->budget = newBudget;
+            itProjet->duree = newDuree;
+            cout << "Les informations sur le projet ont ete mises a jour avec succes." << endl;
+        } else {
+            cout << "Projet introuvable." << endl;
+        }
+    }
+ 
+ 
+    void SupprimerEmployee(int employeeId) {
+        auto itEmployee = find_if(employees.begin(), employees.end(), [employeeId](const Employee& emp) {
+            return emp.matricule == employeeId;
+        });
+ 
+        if (itEmployee != employees.end()) {
+            employees.erase(itEmployee);
+            cout << "Employe supprime avec succes." << endl;
+        } else {
+            cout << "Employe introuvable." << endl;
+        }
+    }
+ 
+    void editEmployee(int employeeId, const string nouveauNom) {
+        auto itEmployee = find_if(employees.begin(), employees.end(), [employeeId](const Employee emp) {
+            return emp.matricule == employeeId;
+        });
+ 
+        if (itEmployee != employees.end()) {
+            itEmployee->nom = nouveauNom;
+            cout << "Les informations sur les employés ont été mises à jour avec succès." << endl;
+        } else {
+            cout << "Employé introuvable." << endl;
+        }
+    }
+ 
+    void Affect_Employee_Poste(int employeeId, int NombreProjet, const string position) {
+        auto itEmployee = find_if(employees.begin(), employees.end(), [employeeId](const Employee emp) {
+            return emp.matricule == employeeId;
+        });
+ 
+        auto itProjet = find_if(projets.begin(), projets.end(), [NombreProjet](const Projet proj) {
+            return proj.number == NombreProjet;
+        });
+ 
+        if (itEmployee != employees.end() && itProjet != projets.end()) {
+            Poste job(position, *itEmployee);
+            itProjet->AjouterPoste(job);
+            cout << "Employé affecté au poste avec succès." << endl;
+        } else {
+            cout << "Employé ou projet introuvable." << endl;
+        }
+    }
+ 
+    void AfficherEmployees() const {
+        cout << "Employees:\n";
+        for (const auto& emp : employees) {
+            emp.AfficherEmployeeDetails();
+        }
+        cout << endl;
+    }
+ 
+    void AfficherProjets() const {
+        cout << "Projets:\n";
+        for (const auto& proj : projets) {
+            proj.DisplayProjetDetails();
+            cout << "Postes:\n";
+            for (const auto& job : proj.postes) {
+                cout << "Position: " << job.position << ", Employee: ";
+                job.employee.AfficherEmployeeDetails();
+            }
+        }
+        cout << endl;
+    }
+ 
+    void VoirStatistiques() const {
+        int nombreEmployes = employees.size();
+ 
+        if (nombreEmployes > 0) {
+            double coutMoyen = 0.0;
+            for (const auto& emp : employees) {
+                coutMoyen += emp.salaire;
+            }
+ 
+            cout << "Nombre d'employes : " << nombreEmployes << endl;
+            cout << "Cout moyen : " << coutMoyen / nombreEmployes << endl;
+        } else {
+            cout << "Aucun employe dans la base de donnees." << endl;
+        }
+    }
+};
+ 
+int main() {
+    GestionRH grh;
+ 
+    while (true) {
+        cout << "\n ========================================== \n";
+        cout << "\n----- GESTION DES RESSOURCES HUMAINES -----\n";
+        cout << "1. Ajouter un employe\n";
+        cout << "2. Supprimer un employe\n";
+        cout << "3. Modifier les informations d'un employe\n";
+        cout << "4. Ajouter un projet\n";
+        cout << "5. Supprimer un projet\n";
+        cout << "6. Modifier les informations d'un projet\n";
+        cout << "7. Affecter un employe e un poste dans un projet\n";
+        cout << "8. Afficher les employes\n";
+        cout << "9. Afficher les projets\n";
+        cout << "10.Voir des Statistiques\n";
+        cout << "0. Quitter\n";
+        cout << "Choisissez une option : ";
+        cout << "\n ========================================== \n";
+ 
+        int choice;
+        cin >> choice;
+ 
+        switch (choice) {
+            case 1: {
+                int matricule;
+                Employee NouveauEmployee(0, "", "", "", 0.0);
+                NouveauEmployee.EmployeeDetails();
+                grh.AjouterEmployee(NouveauEmployee);
+                break;
+            }
+            case 2: {
+                int matricule;
+                cout << "Entrez le matricule de l'employe a supprimer : ";
+                cin >> matricule;
+                grh.SupprimerEmployee(matricule);
+                cout << "Employe supprime avec succes.\n";
+                break;
+            }
+            case 3: {
+                int matricule;
+                string nouveauNom;
+                cout << "Entrez l'ID de l'employe a modifier : ";
+                cin >> matricule;
+                cout << "Entrez le nouveau nom de l'employe : ";
+                cin >> nouveauNom;
+                grh.editEmployee(matricule, nouveauNom);
+                break;
+           }
+            case 4: {
+                int number;
+                string designation;
+                double budget;
+                Projet newProjet(0, "", 0.0, 0);
+                newProjet.SetProjetDetails();
+                grh.AjouterProjet(newProjet);
+                break;
+            }
+        case 5: {
+            int NombreProjet;
+            cout << "Entrez le numero du projet a supprimer : ";
+            cin >> NombreProjet;
+            grh.SupprimerProjet(NombreProjet);
+            cout << "Projet supprime avec succes.\n";
+            break;
+        }
+        case 6: {
+            int NombreProjet;
+            string newDesignation;
+            double newBudget;
+            int newDuree;
+ 
+            cout << "Entrez le numero du projet a modifier : ";
+            cin >> NombreProjet;
+            cout << "Entrez la nouvelle designation du projet : ";
+            cin >> newDesignation;
+            cout << "Entrez le nouveau budget du projet : ";
+            cin >> newBudget;
+            cout << "Entrez la nouvelle duree du projet : ";
+            cin >> newDuree;
+ 
+            grh.EditProjet(NombreProjet, newDesignation, newBudget, newDuree);
+            break;
+        }
+ 
+            case 7: {
+                int employeeId, NombreProjet;
+                string position;
+                cout << "Entrez l'ID de l'employe : ";
+                cin >> employeeId;
+                cout << "Entrez le numero du projet : ";
+                cin >> NombreProjet;
+                cout << "Entrez le poste dans le projet : ";
+                cin >> position;
+                grh.Affect_Employee_Poste(employeeId, NombreProjet, position);
+                cout << "Employe affecte au poste avec succes.\n";
+                break;
+            }
+            case 8:
+                grh.AfficherEmployees();
+                break;
+            case 9:
+                grh.AfficherProjets();
+                break;
+            case 10:
+                grh.VoirStatistiques();
+                break;
+            case 0:
+                cout << "Au revoir !\n";
+                return 0;
+            default:
+                cout << "Option invalide. Veuillez reessayer.\n";
+                break;
+        }
+    }
+ 
+    return 0;
+}
+Envoyé à partir de Courrier pour Windows
+ 
